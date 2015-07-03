@@ -15,6 +15,7 @@ class Keyring_Service_Spotify extends Keyring_Service_OAuth2 {
 		if ( ! KEYRING__HEADLESS_MODE ) {
 			add_action( 'keyring_spotify_manage_ui', array( $this, 'basic_ui' ) );
 			add_filter( 'keyring_spotify_basic_ui_intro', array( $this, 'basic_ui_intro' ) );
+			add_filter( 'keyring_spotify_basic_ui_app_id', '__return_empty_string' );
 		}
 
 		$this->set_endpoint( 'authorize',    'https://accounts.spotify.com/authorize', 'GET'  );
@@ -22,7 +23,6 @@ class Keyring_Service_Spotify extends Keyring_Service_OAuth2 {
 		$this->set_endpoint( 'self',         'https://api.spotify.com/v1/me',          'GET'  );
 
 		$creds = $this->get_credentials();
-		$this->app_id  = $creds['app_id'];
 		$this->key     = $creds['key'];
 		$this->secret  = $creds['secret'];
 
@@ -33,9 +33,12 @@ class Keyring_Service_Spotify extends Keyring_Service_OAuth2 {
 		$this->authorization_parameter = false;
 	}
 
+	/**
+	 * Provides some direction to the user about how to configure the Spotify app
+	 */
 	function basic_ui_intro() {
 		echo '<p>' . sprintf( __( 'To get started, <a href="%1$s">register an OAuth client on Spotify</a>. The most important setting is the <strong>Redirect URIs</strong>, which should be set to <code>%2$s</code>. You can set the other values to whatever you like.', 'keyring' ), 'https://developer.spotify.com/my-applications/', Keyring_Util::admin_url( 'spotify', array( 'action' => 'verify' ) ) ) . '</p>';
-		echo '<p>' . __( "Once you've saved those changes, copy the <strong>CLIENT ID</strong> value into the <strong>API Key</strong> field, and the <strong>CLIENT SECRET</strong> value into the <strong>API Secret</strong> field and click save (you don't need an App ID value for Spotify).", 'keyring' ) . '</p>';
+		echo '<p>' . __( "Once you've saved those changes, copy the <strong>CLIENT ID</strong> value into the <strong>API Key</strong> field, and the <strong>CLIENT SECRET</strong> value into the <strong>API Secret</strong> field and click save.", 'keyring' ) . '</p>';
 	}
 
 	function build_token_meta( $token ) {
